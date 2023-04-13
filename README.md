@@ -1,3 +1,3 @@
 # Logistic Regression
 
-This repository holds Python code for logistic regression
+This repository is for Python code implementing algorithms for logistic regression using Numpy.
