@@ -23,6 +23,10 @@ def evaluate(inputs, weights):
     return sigmoid( np.hstack((np.ones((N,1)),inputs)) @ weights )
 
 
+def predict(inputs, weights):
+    return np.round(evaluate(inputs, weights))
+
+
 if __name__ == '__main__':
     """
     Test code
@@ -35,3 +39,4 @@ if __name__ == '__main__':
     
     print(X.shape)
     print(evaluate(X,w))
+    print(predict(X,w))

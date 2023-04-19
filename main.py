@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from logistic_regression import predict
 
 
 def standardize(data_frame, column):
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     print(df.columns)
 
     # split inputs and outputs
-    X = df.drop('user_action',axis=1).to_numpy()
+    X = df.drop('user_action',axis=1).to_numpy().astype(np.float32)
     y = df['user_action'].to_numpy().astype(np.float32)
 
     # train and test split
@@ -34,3 +35,8 @@ if __name__ == '__main__':
 
     print(f"X_train {X_train.shape}, y_train {y_train.shape}")
     print(f"X_test {X_test.shape}, y_test {y_test.shape}")
+
+    weights = np.random.randn(X_train.shape[1] + 1)
+    preds = predict(X_train, weights)
+    print(preds)
+
