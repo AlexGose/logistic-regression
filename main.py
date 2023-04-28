@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from logistic_regression import predict
+from logistic_regression import predict, classification_rate
 
 
 def standardize(data_frame, column):
@@ -39,4 +39,5 @@ if __name__ == '__main__':
     weights = np.random.randn(X_train.shape[1] + 1)
     preds = predict(X_train, weights)
     print(preds)
+    print(classification_rate(preds, y_train))
 

@@ -27,6 +27,10 @@ def predict(inputs, weights):
     return np.round(evaluate(inputs, weights))
 
 
+def classification_rate(predictions, targets):
+    return (predictions == targets).mean()
+
+
 if __name__ == '__main__':
     """
     Test code
