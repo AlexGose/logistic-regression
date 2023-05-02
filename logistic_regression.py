@@ -31,6 +31,14 @@ def classification_rate(predictions, targets):
     return (predictions == targets).mean()
 
 
+def cross_entropy_loss(output, target):
+    return - np.log(output) if target == 1 else -np.log(1-output)
+
+
+def mean_cross_entropy(outputs, targets):
+    return np.vectorize(cross_entropy_loss)(outputs, targets).mean()
+
+
 if __name__ == '__main__':
     """
     Test code
@@ -44,3 +52,7 @@ if __name__ == '__main__':
     print(X.shape)
     print(evaluate(X,w))
     print(predict(X,w))
+
+    print(cross_entropy_loss(.9,1))
+    print(cross_entropy_loss(.1,0))
+    print(mean_cross_entropy(np.array([.9,.1]),np.array([1,0])))
