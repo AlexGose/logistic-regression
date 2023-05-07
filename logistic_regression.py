@@ -12,7 +12,7 @@ def evaluate(inputs, weights):
     should be classified as belonging to class 1, as opposed to class 0.
 
     inputs -  N x F 2D Numpy array representing the input data
-    weights - N + 1 1D Numpy array representing the model outputs.
+    weights - F + 1 1D Numpy array representing the model weights.
               weights[0] is the bias term.  weights[i] corresponds to
               the ith feature.
     
@@ -20,7 +20,7 @@ def evaluate(inputs, weights):
     number of input features.  
     """
     N = inputs.shape[0]
-    return sigmoid( np.hstack((np.ones((N,1)),inputs)) @ weights )
+    return sigmoid( np.hstack((np.ones((N, 1)), inputs)) @ weights )
 
 
 def predict(inputs, weights):
