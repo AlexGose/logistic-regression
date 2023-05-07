@@ -12,7 +12,7 @@ def evaluate(inputs, weights):
     should be classified as belonging to class 1, as opposed to class 0.
 
     inputs -  N x F 2D Numpy array representing the input data
-    weights - N + 1 1D Numpy array representing the model outputs.
+    weights - F + 1 1D Numpy array representing the model weights.
               weights[0] is the bias term.  weights[i] corresponds to
               the ith feature.
     
@@ -20,7 +20,7 @@ def evaluate(inputs, weights):
     number of input features.  
     """
     N = inputs.shape[0]
-    return sigmoid( np.hstack((np.ones((N,1)),inputs)) @ weights )
+    return sigmoid( np.hstack((np.ones((N, 1)), inputs)) @ weights )
 
 
 def predict(inputs, weights):
@@ -29,6 +29,14 @@ def predict(inputs, weights):
 
 def classification_rate(predictions, targets):
     return (predictions == targets).mean()
+
+
+def cross_entropy_loss(output, target):
+    return - np.log(output) if target == 1 else -np.log(1-output)
+
+
+def mean_cross_entropy(outputs, targets):
+    return np.vectorize(cross_entropy_loss)(outputs, targets).mean()
 
 
 if __name__ == '__main__':
@@ -44,3 +52,7 @@ if __name__ == '__main__':
     print(X.shape)
     print(evaluate(X,w))
     print(predict(X,w))
+
+    print(cross_entropy_loss(.9,1))
+    print(cross_entropy_loss(.1,0))
+    print(mean_cross_entropy(np.array([.9,.1]),np.array([1,0])))
