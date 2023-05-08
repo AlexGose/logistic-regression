@@ -17,10 +17,9 @@ def evaluate(inputs, weights):
               the ith feature.
     
     Here, N represents the number of input data points and F is the
-    number of input features.  
+    number of input features.
     """
-    N = inputs.shape[0]
-    return sigmoid( np.hstack((np.ones((N, 1)), inputs)) @ weights )
+    return sigmoid( add_bias_feature(inputs) @ weights )
 
 
 def predict(inputs, weights):
@@ -39,16 +38,54 @@ def mean_cross_entropy(outputs, targets):
     return np.vectorize(cross_entropy_loss)(outputs, targets).mean()
 
 
+def add_bias_feature(inputs):
+    """
+    Prepend a column of ones to `inputs`
+    """
+    return np.hstack((np.ones((inputs.shape[0],1)), inputs))
+
+
+def gradient(inputs, targets, weights):
+    """
+    Returns the gradient of the log likelihood w.r.t. the weights
+
+    inputs - N x F 2d Numpy array representing the input data
+    targets - N x 1 1D Numpy array representing the targets
+    weights - F + 1 1D Numpy array representing the model weights
+
+    Here, N represents the number of input data points and F is the
+    number of input features.
+    """
+    return ((targets - evaluate(inputs, weights)).reshape((-1,1))
+            * add_bias_feature(inputs)).sum(axis=0)
+
+
+def batch_gradient_ascent(inputs, targets, weights, lr=0.01, verbose=False,
+                          max_iters=1000, step_size=20):
+    """
+    Full batch gradient ascent to maximize likelihood
+
+    Returns the weights at the last iteration
+    """
+    for it in range(max_iters):
+        weights = weights + lr * gradient(inputs, targets, weights)
+        if verbose and it % step_size == step_size - 1:
+            outputs = evaluate(inputs, weights)
+            print(f"{it+1}/{max_iters}: "
+                  +f"{mean_cross_entropy(outputs, targets)}")
+    return weights
+
+
 if __name__ == '__main__':
     """
     Test code
     """
     print(sigmoid(0))
-    
+
     # generate random input data (20 data points with 2 features)
     X = np.random.randn(20,2)
     w = np.random.randn(3)
-    
+
     print(X.shape)
     print(evaluate(X,w))
     print(predict(X,w))
@@ -56,3 +93,8 @@ if __name__ == '__main__':
     print(cross_entropy_loss(.9,1))
     print(cross_entropy_loss(.1,0))
     print(mean_cross_entropy(np.array([.9,.1]),np.array([1,0])))
+
+    y = np.random.choice([0,1], size=20)  # random labels
+    print(gradient(X, y, w))
+
+    print(batch_gradient_ascent(X, y, w, lr=0.01, verbose=True, max_iters=100))
