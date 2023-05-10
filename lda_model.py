@@ -3,7 +3,8 @@
 # Tests for logistic_regression.py using a linear discriminative analysis model
 import numpy as np
 import pandas as pd
-from logistic_regression import evaluate, mean_cross_entropy
+from logistic_regression import evaluate, mean_cross_entropy, \
+                                batch_gradient_ascent
 import matplotlib.pyplot as plt
 
 
@@ -27,7 +28,7 @@ def lda_model_data():
 
 
 if __name__ == '__main__':
-    X, y = lda_model_data()
+    X, y = lda_model_data()  # avoid train/test split (just testing code)
     print(X.shape)
     print(y.shape)
 
@@ -41,4 +42,6 @@ if __name__ == '__main__':
     print(mean_cross_entropy(outputs, y))
 
     visualize_lda(X, y)
+    batch_gradient_ascent(X, y, random_weights, lr=0.01, verbose=True,
+                          max_iters=100)
 
