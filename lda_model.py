@@ -16,13 +16,18 @@ def visualize_lda(X, y):
     plt.show()
 
 
-if __name__ == '__main__':
-    # generate fake data in accordance with LDA model
+def lda_model_data():
+    # Generate fake data in accordance with LDA model
     n = 100  # number of data points in each group
     X1 = np.random.randn(n,2) + np.array([2,2])
     X2 = np.random.randn(n,2) + np.array([-2,-2])
     X = np.vstack((X1,X2))
     y = np.hstack((np.ones(n), np.zeros(n)))
+    return X, y
+
+
+if __name__ == '__main__':
+    X, y = lda_model_data()
     print(X.shape)
     print(y.shape)
 
@@ -36,3 +41,4 @@ if __name__ == '__main__':
     print(mean_cross_entropy(outputs, y))
 
     visualize_lda(X, y)
+
