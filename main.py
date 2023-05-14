@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
-from logistic_regression import predict, classification_rate
+import matplotlib.pyplot as plt
+from logistic_regression import predict, classification_rate, \
+                                batch_gradient_ascent
 
 
 def standardize(data_frame, column):
@@ -41,3 +43,11 @@ if __name__ == '__main__':
     print(preds)
     print(classification_rate(preds, y_train))
 
+    weights, train_costs, test_costs = \
+            batch_gradient_ascent(X_train, y_train, lr=0.01, verbose=True,
+                                  max_iters=500, test_inputs=X_test,
+                                  test_targets=y_test, step_size=20)
+    plt.plot(train_costs, label='Training Cost')
+    plt.plot(test_costs, label='Test Cost')
+    plt.legend()
+    plt.show()
