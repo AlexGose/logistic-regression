@@ -144,4 +144,5 @@ if __name__ == '__main__':
     print(gradient(X, y, w, ridge=True))
 
     print(batch_gradient_ascent(X, y, lr=0.01, verbose=True, max_iters=100))
-    print(batch_gradient_ascent(X, y, verbose=True, max_iters=100, ridge=True))
+    print(batch_gradient_ascent(X, y, verbose=True, max_iters=100,
+          ridge=True, ridge_param=1))
