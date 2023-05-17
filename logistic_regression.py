@@ -38,6 +38,11 @@ def mean_cross_entropy(outputs, targets):
     return np.vectorize(cross_entropy_loss)(outputs, targets).mean()
 
 
+def ridge_regression_cost(outputs, targets, weights, reg_param=0.01):
+    regularization = reg_param * np.linalg.norm(weights, 2)
+    return mean_cross_entropy(outputs, targets) + regularization
+
+
 def add_bias_feature(inputs):
     """
     Prepend a column of ones to `inputs`
@@ -126,6 +131,7 @@ if __name__ == '__main__':
     print(cross_entropy_loss(.9, 1))
     print(cross_entropy_loss(.1, 0))
     print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0])))
+    print(ridge_regression_cost(np.array([.9, .1]), np.array([1, 0]), w))
 
     y = np.random.choice([0, 1], size=20)  # random labels
     print(gradient(X, y, w))
