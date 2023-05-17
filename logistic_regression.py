@@ -38,6 +38,11 @@ def mean_cross_entropy(outputs, targets):
     return np.vectorize(cross_entropy_loss)(outputs, targets).mean()
 
 
+def ridge_regression_cost(outputs, targets, weights, reg_param=0.01):
+    regularization = reg_param * np.linalg.norm(weights, 2)
+    return mean_cross_entropy(outputs, targets) + regularization
+
+
 def add_bias_feature(inputs):
     """
     Prepend a column of ones to `inputs`
@@ -45,7 +50,7 @@ def add_bias_feature(inputs):
     return np.hstack((np.ones((inputs.shape[0],1)), inputs))
 
 
-def gradient(inputs, targets, weights):
+def gradient(inputs, targets, weights, ridge=False, ridge_param=0.01):
     """
     Returns the gradient of the log likelihood w.r.t. the weights
 
@@ -56,13 +61,17 @@ def gradient(inputs, targets, weights):
     Here, N represents the number of input data points and F is the
     number of input features.
     """
-    return ((targets - evaluate(inputs, weights)).reshape((-1,1))
+    output = ((targets - evaluate(inputs, weights)).reshape((-1,1))
             * add_bias_feature(inputs)).sum(axis=0)
+    if ridge:
+        output -= ridge_param * weights
+    return output
 
 
 def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
                           lr=0.01, verbose=False, max_iters=1000,
-                          step_size=20, test_inputs=None, test_targets=None):
+                          step_size=20, test_inputs=None, test_targets=None,
+                          ridge=False, ridge_param=0.01):
     """
     Full batch gradient ascent to maximize likelihood
 
@@ -80,7 +89,9 @@ def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
     test_costs = []
     for it in range(max_iters):
 
-        weights = weights + lr * gradient(train_inputs, train_targets, weights)
+        weights = weights + lr * \
+                  gradient(train_inputs, train_targets, weights, 
+                          ridge=ridge, ridge_param=ridge_param)
 
         outputs = evaluate(train_inputs, weights)
         train_cost = mean_cross_entropy(outputs, train_targets)
@@ -126,8 +137,12 @@ if __name__ == '__main__':
     print(cross_entropy_loss(.9, 1))
     print(cross_entropy_loss(.1, 0))
     print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0])))
+    print(ridge_regression_cost(np.array([.9, .1]), np.array([1, 0]), w))
 
     y = np.random.choice([0, 1], size=20)  # random labels
     print(gradient(X, y, w))
+    print(gradient(X, y, w, ridge=True))
 
     print(batch_gradient_ascent(X, y, lr=0.01, verbose=True, max_iters=100))
+    print(batch_gradient_ascent(X, y, verbose=True, max_iters=100,
+          ridge=True, ridge_param=1))
