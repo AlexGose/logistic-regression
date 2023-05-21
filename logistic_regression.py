@@ -77,10 +77,11 @@ def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
 
     Returns the weights at the last iteration, train costs, and test costs
     """
-    test_data_exists = False
-    if np.any(test_inputs) and np.any(test_targets):
-        test_data_exists = True
-    if not np.any(initial_weights):
+    test_data_exists = True
+    if test_inputs is None or test_targets is None:
+        test_data_exists = False
+
+    if initial_weights is None:
         weights = np.random.randn(train_inputs.shape[1] + 1)
     else:
         weights = initial_weights
@@ -89,8 +90,7 @@ def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
     test_costs = []
     for it in range(max_iters):
 
-        weights = weights + lr * \
-                  gradient(train_inputs, train_targets, weights, 
+        weights += lr * gradient(train_inputs, train_targets, weights, 
                           ridge=ridge, ridge_param=ridge_param)
 
         outputs = evaluate(train_inputs, weights)
@@ -127,6 +127,7 @@ if __name__ == '__main__':
     """
     print(sigmoid(0))
 
+    np.random.seed(1)
     X = np.random.randn(20,2) # generate random input data
     w = np.random.randn(3)
 
@@ -146,3 +147,4 @@ if __name__ == '__main__':
     print(batch_gradient_ascent(X, y, lr=0.01, verbose=True, max_iters=100))
     print(batch_gradient_ascent(X, y, verbose=True, max_iters=100,
           ridge=True, ridge_param=1))
+    print(batch_gradient_ascent(X, y, initial_weights=np.zeros(3), max_iters=10))
