@@ -34,18 +34,14 @@ def cross_entropy_loss(output, target):
     return - np.log(output) if target == 1 else -np.log(1-output)
 
 
-def mean_cross_entropy(outputs, targets):
-    return np.vectorize(cross_entropy_loss)(outputs, targets).mean()
-
-
-def ridge_regression_cost(outputs, targets, weights, reg_param=0.01):
-    regularization = reg_param * np.linalg.norm(weights, 2)
-    return mean_cross_entropy(outputs, targets) + regularization
-
-
-def lasso_regression_cost(outputs, targets, weights, reg_param=0.01):
-    regularization = reg_param * np.linalg.norm(weights, 1)
-    return mean_cross_entropy(outputs, targets) + regularization
+def mean_cross_entropy(outputs, targets, weights=None, reg=False, reg_norm=1,
+                       reg_param=0.01):
+    if reg:  # with regularization
+        regularization = reg_param * np.linalg.norm(weights, reg_norm)
+    else:
+        regularization = 0
+    return np.vectorize(cross_entropy_loss)(outputs, targets).mean() \
+           + regularization
 
 
 def add_bias_feature(inputs):
@@ -55,8 +51,8 @@ def add_bias_feature(inputs):
     return np.hstack((np.ones((inputs.shape[0],1)), inputs))
 
 
-def gradient(inputs, targets, weights, ridge=False, ridge_param=0.01,
-             lasso=False, lasso_param=0.01):
+def gradient(inputs, targets, weights, l2=False, l2_param=0.01,
+             l1=False, l1_param=0.01):
     """
     Returns the gradient of the log likelihood w.r.t. the weights
 
@@ -64,34 +60,31 @@ def gradient(inputs, targets, weights, ridge=False, ridge_param=0.01,
     targets - 1D Numpy array of length N representing the targets
     weights - 1D Numpy array of length F + 1 representing the model weights,
               where weights[0] is the bias term
-    ridge - (default False) will include ridge regression regularization if
-            True
-    ridge_param - (default 0.01) the regularization parameter for ridge
-                  regression
-    lasso - (default False) will include lasso regression regularization if
-            True
-    lasso_param - (default 0.01) the regularization parameter for lasso
-                 regression
+    l2 - (default False) will include L2 regularization if True
+    l2_param - (default 0.01) the regularization parameter for L2
+               regularization
+    l1 - (default False) will include L1 regularization if True
+    l1_param - (default 0.01) the regularization parameter for L1
+                regularization 
 
     Here, N represents the number of input data points and F is the
     number of input features.
     """
     output = ((targets - evaluate(inputs, weights)).reshape((-1,1))
             * add_bias_feature(inputs)).sum(axis=0)
-    if ridge:
-        output -= ridge_param * weights
-    if lasso:
-        output -= lasso_param * np.sign(weights)
+    if l2:
+        output -= l2_param * weights
+    if l1:
+        output -= l1_param * np.sign(weights)
     return output
 
 
 def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
                           lr=0.01, verbose=False, max_iters=1000,
                           step_size=20, test_inputs=None, test_targets=None,
-                          ridge=False, ridge_param=0.01, lasso=False,
-                          lasso_param=0.01):
+                          l2=False, l2_param=0.01, l1=False, l1_param=0.01):
     """
-    Full batch gradient ascent to maximize likelihood
+    Full batch gradient ascent to maximize log likelihood
 
     Returns the weights at the last iteration, train costs, and test costs
     """
@@ -109,8 +102,7 @@ def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
     for it in range(max_iters):
 
         weights += lr * gradient(train_inputs, train_targets, weights, 
-                          ridge=ridge, ridge_param=ridge_param, lasso=lasso,
-                          lasso_param=lasso_param)
+                          l2=l2, l2_param=l2_param, l1=l1, l1_param=l1_param)
 
         outputs = evaluate(train_inputs, weights)
         train_cost = mean_cross_entropy(outputs, train_targets)
@@ -157,16 +149,18 @@ if __name__ == '__main__':
     print(cross_entropy_loss(.9, 1))
     print(cross_entropy_loss(.1, 0))
     print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0])))
-    print(ridge_regression_cost(np.array([.9, .1]), np.array([1, 0]), w))
-    print(lasso_regression_cost(np.array([.9, .1]), np.array([1, 0]), w))
+    print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0]), w, reg=True,
+                             reg_norm=2))
+    print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0]), w, reg=True,
+                             reg_norm=1))
 
     y = np.random.choice([0, 1], size=20)  # random labels
     print(gradient(X, y, w))
-    print(gradient(X, y, w, ridge=True))
+    print(gradient(X, y, w, l2=True))
 
     print(batch_gradient_ascent(X, y, lr=0.01, verbose=True, max_iters=100))
     print(batch_gradient_ascent(X, y, verbose=True, max_iters=100,
-          ridge=True, ridge_param=1))
+          l2=True, l2_param=1))
     print(batch_gradient_ascent(X, y, verbose=True, max_iters=100,
-          lasso=True, lasso_param=1))
+          l1=True, l1_param=1))
     print(batch_gradient_ascent(X, y, initial_weights=np.zeros(3), max_iters=10))

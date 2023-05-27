@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     weights1, train_cost1, test_cost1 = batch_gradient_ascent(X, y, verbose=True, 
                                    test_inputs=X_test, test_targets=y_test,
-                                   max_iters=100, lasso=True, lasso_param=7)
+                                   max_iters=100, l1=True, l1_param=7)
     weights2, train_cost2, test_cost2 = batch_gradient_ascent(X, y, verbose=True, 
                                    max_iters=100, test_inputs=X_test, 
                                    test_targets=y_test)
