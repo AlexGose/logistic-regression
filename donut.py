@@ -15,15 +15,21 @@ def get_train_data(inner_radius=2, outer_radius=4, N=1000, sigma=1):
     X[:,1] = r * np.sin(theta)
 
     y = np.array([0] * int(N//2) + [1] * int(N//2))
-    return X, y
-
+    return X, y, r
 
 
 if __name__ == '__main__':
-    X, y =get_train_data()
+    X, y, r = get_train_data(inner_radius=5, outer_radius=10)
 
     plt.scatter(X[:,0],X[:,1],c=y)
     plt.show()
 
-    weights, train_costs, _ = batch_gradient_ascent(X, y, verbose=True,
-                                                 max_iters=100)
+    weights, train_costs, _ = batch_gradient_ascent(X, y, verbose=True, lr=0.001,
+                                                 max_iters=1000, step_size=100)
+    print(weights)
+
+    X = np.hstack((X, r.reshape((-1,1))))  # add a feature: radius
+    weights, train_costs, _ = batch_gradient_ascent(X, y, verbose=True, lr=0.001,
+                                                 max_iters=1000, step_size=100)
+    print(weights)
+
