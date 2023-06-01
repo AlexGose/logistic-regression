@@ -51,6 +51,15 @@ def add_bias_feature(inputs):
     return np.hstack((np.ones((inputs.shape[0],1)), inputs))
 
 
+def add_interaction_feature(inputs, col1, col2):
+    """
+    Append a feature column to `inputs` representing the product of
+    each value in column `col1` with the value in column `col2`
+    """
+    product = inputs[:,col1] * inputs[:,col2]
+    return np.hstack((inputs, product.reshape((-1,1))))
+
+
 def gradient(inputs, targets, weights, l2=False, l2_param=0.01,
              l1=False, l1_param=0.01):
     """
