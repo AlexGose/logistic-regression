@@ -16,4 +16,9 @@ if __name__ == '__main__':
                                                     max_iters=1000, 
                                                     step_size=100)
     print(weights)
-
+    
+    weights, train_costs, _ = batch_gradient_ascent(X, y, verbose=True,
+                                                    initial_weights=np.array(
+                                                        [0,1,1,-2]),
+                                                    max_iters=1000, 
+                                                    step_size=100)
