@@ -112,7 +112,8 @@ def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
         test_data_exists = False
 
     if initial_weights is None:
-        weights = np.random.randn(train_inputs.shape[1] + 1)
+        num_weights = train_inputs.shape[1] + 1
+        weights = np.random.randn(num_weights) / np.sqrt(num_weights)
     else:
         weights = initial_weights.astype(np.float64)
 
