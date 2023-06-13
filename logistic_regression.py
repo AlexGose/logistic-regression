@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.special import logsumexp
 
 
 def sigmoid(z):
@@ -40,18 +41,25 @@ def classification_rate(predictions, targets):
     return (predictions == targets).mean()
 
 
-def cross_entropy_loss(output, target):
-    return - np.log(output) if target == 1 else -np.log(1-output)
+def cross_entropy_loss(feature_weight_product, target):
+    """
+    Numerically stable loss calculation
+
+    Uses log-sum-exp trick
+    """
+    lse = logsumexp([0, - feature_weight_product])
+    return lse if target==1 else feature_weight_product + lse
 
 
-def mean_cross_entropy(outputs, targets, weights=None, reg=False, reg_norm=1,
+def mean_cross_entropy(inputs, targets, weights, reg=False, reg_norm=1,
                        reg_param=0.01):
     if reg:  # with regularization
         regularization = reg_param * np.linalg.norm(weights, reg_norm)
     else:
         regularization = 0
-    return np.vectorize(cross_entropy_loss)(outputs, targets).mean() \
-           + regularization
+    feature_weight_products = np.dot(add_bias_feature(inputs) , weights)
+    return np.vectorize(cross_entropy_loss)(feature_weight_products,
+                                            targets).mean() + regularization
 
 
 def add_bias_feature(inputs):
@@ -125,12 +133,12 @@ def batch_gradient_ascent(train_inputs, train_targets, initial_weights=None,
                           l2=l2, l2_param=l2_param, l1=l1, l1_param=l1_param)
 
         outputs = evaluate(train_inputs, weights)
-        train_cost = mean_cross_entropy(outputs, train_targets)
+        train_cost = mean_cross_entropy(train_inputs, train_targets, weights)
         train_costs.append(train_cost)
 
         if test_data_exists:
             test_outputs = evaluate(test_inputs, weights)
-            test_cost = mean_cross_entropy(test_outputs, test_targets)
+            test_cost = mean_cross_entropy(test_inputs, test_targets, weights)
             test_costs.append(test_cost)
 
         if verbose and it % step_size == step_size - 1:
@@ -168,10 +176,10 @@ if __name__ == '__main__':
 
     print(cross_entropy_loss(.9, 1))
     print(cross_entropy_loss(.1, 0))
-    print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0])))
-    print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0]), w, reg=True,
+    print(mean_cross_entropy(np.array([[.9, .1]]), np.array([1, 0]), w))
+    print(mean_cross_entropy(np.array([[.9, .1]]), np.array([1, 0]), w, reg=True,
                              reg_norm=2))
-    print(mean_cross_entropy(np.array([.9, .1]), np.array([1, 0]), w, reg=True,
+    print(mean_cross_entropy(np.array([[.9, .1]]), np.array([1, 0]), w, reg=True,
                              reg_norm=1))
 
     y = np.random.choice([0, 1], size=20)  # random labels
