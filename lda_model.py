@@ -35,11 +35,8 @@ if __name__ == '__main__':
     random_weights = np.random.randn(X.shape[1] + 1)
     print(random_weights.shape)
     print(X.dtype)
-    outputs = evaluate(X, random_weights)
-    print(outputs.shape)
-    print(mean_cross_entropy(outputs, y))
-    outputs = evaluate(X, np.array([0, 4, 4]))
-    print(mean_cross_entropy(outputs, y))
+    print(mean_cross_entropy(X, y, random_weights))
+    print(mean_cross_entropy(X, y, np.array([0, 4, 4])))
 
     visualize_lda(X, y)
     batch_gradient_ascent(X, y, random_weights, lr=0.01, verbose=True,
